@@ -88,13 +88,16 @@ CUSTOM_CSS = """
     border-radius: inherit;
 }
 .review-highlight {
-    padding: 16px 18px;
-    border-radius: 12px;
-    background: rgba(17, 24, 39, 0.75);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    line-height: 1.8;
-    font-size: 1.05rem;
-    color: #E5E7EB;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: rgba(30, 41, 59, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.45);
+    line-height: 1.75;
+    font-size: 1.08rem;
+    color: #F9FAFB;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 .review-highlight .aspect-highlight {
     padding: 0.05em 0.35em;
@@ -102,21 +105,19 @@ CUSTOM_CSS = """
     font-weight: 600;
     display: inline-block;
     margin: 0 1px;
+    color: #0f172a;
 }
 .review-highlight .aspect-highlight.positive {
-    background: rgba(52, 211, 153, 0.22);
-    color: #34D399;
-    border: 1px solid rgba(52, 211, 153, 0.45);
+    background: rgba(52, 211, 153, 0.88);
+    border: 1px solid rgba(16, 185, 129, 0.9);
 }
 .review-highlight .aspect-highlight.negative {
-    background: rgba(248, 113, 113, 0.22);
-    color: #EF4444;
-    border: 1px solid rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.88);
+    border: 1px solid rgba(239, 68, 68, 0.9);
 }
 .review-highlight .aspect-highlight.neutral {
-    background: rgba(251, 191, 36, 0.22);
-    color: #FBBF24;
-    border: 1px solid rgba(251, 191, 36, 0.45);
+    background: rgba(251, 191, 36, 0.88);
+    border: 1px solid rgba(217, 119, 6, 0.9);
 }
 .aspect-card {
     padding: 18px 20px;
@@ -413,7 +414,12 @@ def main() -> None:
 
     st.sidebar.divider()
     st.sidebar.subheader("Batch analysis")
-    use_api_sidebar = st.sidebar.checkbox("Use backend API", value=bool(API_URL))
+    api_available = bool(API_URL)
+    use_api_sidebar = st.sidebar.checkbox(
+        "Use backend API", value=api_available, disabled=not api_available
+    )
+    if not api_available:
+        st.sidebar.caption("Backend API URL not configured; using built-in analyzer.")
     uploaded = st.sidebar.file_uploader("Upload CSV with a `review` column", type=["csv"])
     if uploaded is not None:
         with st.spinner("Processing batch..."):
@@ -458,13 +464,20 @@ def main() -> None:
 
     review_text = st.text_area("Paste or edit a review", st.session_state.review_text, height=160, key="review_text")
     use_api = st.checkbox(
-        "Use backend API (requires REVIEW_API_URL env var)", value=bool(API_URL), key="use_api_checkbox"
+        "Use backend API (requires REVIEW_API_URL env var)",
+        value=api_available,
+        key="use_api_checkbox",
+        disabled=not api_available,
+        help=None if api_available else "Backend endpoint not configured; running locally instead.",
     )
 
     if st.button("Analyze", type="primary"):
         if not review_text.strip():
             st.warning("Please enter a review first.")
             st.stop()
+        if use_api and not api_available:
+            st.warning("Backend API URL not configured; running local analyzer instead.")
+            use_api = False
         st.session_state.batch_df = None
         st.session_state.batch_summary = None
         with st.spinner("Analyzing..."):

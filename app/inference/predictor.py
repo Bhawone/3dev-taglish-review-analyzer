@@ -304,17 +304,64 @@ class ReviewAnalyzer:
         if not text.strip():
             raise ValueError("Input text must be non-empty.")
 
-        scores = (
+        raw_scores = (
             self._predict_transformer(text)
             if self.transformer_model is not None
             else self._predict_baseline(text)
         )
-        sentiment_label = max(scores, key=scores.get)
+        sentiment_label = max(raw_scores, key=raw_scores.get)
 
         aspects = self._detect_aspects(text, sentiment_label)
+        sentiment_label, scores = self._resolve_overall_sentiment(
+            sentiment_label, raw_scores, aspects, text
+        )
         deception = self._deception_score(text)
 
         return AnalysisResult(sentiment_label, scores, aspects, deception)
+
+    def _resolve_overall_sentiment(
+        self,
+        initial_label: str,
+        scores: Dict[str, float],
+        aspects: List[Dict[str, str]],
+        text: str,
+    ) -> tuple[str, Dict[str, float]]:
+        adjusted_scores = dict(scores)
+        aspect_sentiments = {a.get("sentiment") for a in aspects if a.get("sentiment")}
+        if "positive" in aspect_sentiments and "negative" in aspect_sentiments:
+            neutral_target = max(
+                adjusted_scores.get("neutral", 0.0),
+                min(
+                    0.9,
+                    (adjusted_scores.get("positive", 0.0) + adjusted_scores.get("negative", 0.0))
+                    / 2
+                    + 0.1,
+                ),
+            )
+            adjusted_scores["neutral"] = neutral_target
+            adjusted_scores["positive"] = min(
+                adjusted_scores.get("positive", 0.0), neutral_target * 0.85
+            )
+            adjusted_scores["negative"] = min(
+                adjusted_scores.get("negative", 0.0), neutral_target * 0.85
+            )
+            return "neutral", adjusted_scores
+
+        text_lower = text.lower()
+        has_pos = any(cue in text_lower for cue in POSITIVE_CUES)
+        has_neg = any(cue in text_lower for cue in NEGATIVE_CUES)
+        if has_pos and has_neg:
+            neutral_target = max(adjusted_scores.get("neutral", 0.0), 0.6)
+            adjusted_scores["neutral"] = neutral_target
+            adjusted_scores["positive"] = min(
+                adjusted_scores.get("positive", 0.0), neutral_target * 0.9
+            )
+            adjusted_scores["negative"] = min(
+                adjusted_scores.get("negative", 0.0), neutral_target * 0.9
+            )
+            return "neutral", adjusted_scores
+
+        return initial_label, adjusted_scores
 
 
 def analyze_text(text: str) -> Dict:

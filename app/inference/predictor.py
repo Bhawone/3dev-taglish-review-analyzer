@@ -20,7 +20,10 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-import torch
+try:
+    import torch
+except ModuleNotFoundError:  # pragma: no cover - deployed environments without torch
+    torch = None
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -91,7 +94,11 @@ class AnalysisResult:
 
 class ReviewAnalyzer:
     def __init__(self) -> None:
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = (
+            torch.device("cuda" if torch and torch.cuda.is_available() else "cpu")
+            if torch is not None
+            else None
+        )
         self.transformer_tokenizer: Optional[AutoTokenizer] = None
         self.transformer_model: Optional[AutoModelForSequenceClassification] = None
         self.baseline_pipeline: Optional[Pipeline] = None
@@ -101,7 +108,10 @@ class ReviewAnalyzer:
         if self._transformer_available():
             self._load_transformer()
         else:
-            print("Transformer checkpoint not found; training fallback baseline.")
+            if torch is None:
+                print("torch not available; using baseline pipeline only.")
+            else:
+                print("Transformer checkpoint not found; training fallback baseline.")
             self._train_baseline()
         self._load_auxiliary_models()
 
@@ -109,6 +119,8 @@ class ReviewAnalyzer:
     # Loading helpers
     # ------------------------------------------------------------------ #
     def _transformer_available(self) -> bool:
+        if torch is None:
+            return False
         if not CHECKPOINT_DIR.exists():
             return False
         required_files = ["config.json", "tokenizer.json", "sentencepiece.bpe.model"]

@@ -56,10 +56,146 @@ SAMPLE_REVIEWS: List[Tuple[str, str]] = [
 ]
 
 ASPECT_COLORS = {
-    "positive": "#8BC34A",
-    "neutral": "#FFC107",
-    "negative": "#F44336",
+    "positive": "#34D399",
+    "neutral": "#FBBF24",
+    "negative": "#F87171",
 }
+
+CUSTOM_CSS = """
+<style>
+.stApp {
+    background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+    color: #E5E7EB;
+    font-family: "Inter", sans-serif;
+}
+.metric-container div[data-testid="stMetricValue"] {
+    font-size: 2rem !important;
+}
+.metric-container div[data-testid="stMetricLabel"] {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9CA3AF !important;
+}
+.confidence-bar {
+    background: rgba(148, 163, 184, 0.18);
+    border-radius: 999px;
+    overflow: hidden;
+    height: 10px;
+    margin-top: 4px;
+}
+.confidence-bar__fill {
+    height: 100%;
+    border-radius: inherit;
+}
+.review-highlight {
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: rgba(17, 24, 39, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    line-height: 1.8;
+    font-size: 1.05rem;
+    color: #E5E7EB;
+}
+.review-highlight .aspect-highlight {
+    padding: 0.05em 0.35em;
+    border-radius: 0.4em;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0 1px;
+}
+.review-highlight .aspect-highlight.positive {
+    background: rgba(52, 211, 153, 0.22);
+    color: #34D399;
+    border: 1px solid rgba(52, 211, 153, 0.45);
+}
+.review-highlight .aspect-highlight.negative {
+    background: rgba(248, 113, 113, 0.22);
+    color: #EF4444;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+}
+.review-highlight .aspect-highlight.neutral {
+    background: rgba(251, 191, 36, 0.22);
+    color: #FBBF24;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+}
+.aspect-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(17, 24, 39, 0.66);
+    margin-bottom: 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.3);
+}
+.aspect-card h4 {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.8rem;
+    color: #9CA3AF;
+}
+.aspect-card .aspect-card__sentiment {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 6px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.aspect-card__chip {
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #111827;
+}
+.aspect-card__chip.positive { background: #34D399; }
+.aspect-card__chip.neutral { background: #FBBF24; }
+.aspect-card__chip.negative { background: #F87171; }
+.aspect-card__evidence {
+    margin-top: 8px;
+    color: #D1D5DB;
+    font-size: 0.95rem;
+}
+.aspect-card__confidence {
+    margin-top: 6px;
+    color: #9CA3AF;
+    font-size: 0.85rem;
+}
+.summary-cards > div {
+    background: rgba(17, 24, 39, 0.66);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+}
+.summary-cards div[data-testid="stMetricDelta"] {
+    color: #9CA3AF !important;
+}
+.confidence-grid {
+    background: rgba(17, 24, 39, 0.66);
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    padding: 12px 18px 6px;
+}
+.confidence-grid h4 {
+    margin: 0 0 12px;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+}
+.confidence-grid .confidence-item {
+    margin-bottom: 10px;
+}
+.confidence-grid .confidence-item span {
+    font-weight: 600;
+}
+.stDownloadButton button {
+    border-radius: 999px !important;
+}
+</style>
+"""
 
 
 @st.cache_resource(show_spinner=False)
@@ -84,16 +220,26 @@ def analyze_via_api(review: str) -> Dict:
     return response.json()
 
 
+def inject_custom_css() -> None:
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+
 def highlight_evidence(review: str, aspects: Iterable[Dict]) -> str:
-    tokens = []
+    token_sentiment: Dict[str, str] = {}
     for aspect in aspects:
         evidence = aspect.get("evidence") or ""
-        tokens.extend([tok.strip() for tok in evidence.split(",") if tok.strip()])
+        sentiment = (aspect.get("sentiment") or "neutral").lower()
+        for token in [tok.strip() for tok in evidence.split(",") if tok.strip()]:
+            token_sentiment[token.lower()] = sentiment
+
     highlighted = review
-    # Longer tokens first to avoid partial replacements
-    for token in sorted(set(tokens), key=len, reverse=True):
+    for token, sentiment in sorted(token_sentiment.items(), key=lambda item: len(item[0]), reverse=True):
         pattern = re.compile(re.escape(token), flags=re.IGNORECASE)
-        highlighted = pattern.sub(lambda m: f"<mark>{m.group(0)}</mark>", highlighted)
+        css_class = f"aspect-highlight {sentiment}"
+        highlighted = pattern.sub(
+            lambda match: f"<span class='{css_class}'>{match.group(0)}</span>",
+            highlighted,
+        )
     return highlighted
 
 
@@ -160,31 +306,73 @@ def build_batch_report(batch: List[Dict]) -> Tuple[pd.DataFrame, Dict[str, float
 def render_confidence_bars(scores: Dict) -> None:
     if not scores:
         return
-    st.write("Confidence by class")
-    cols = st.columns(len(scores))
-    for col, (label, prob) in zip(cols, scores.items()):
-        col.metric(label.title(), f"{prob:.0%}")
-        col.progress(min(max(prob, 0.0), 1.0))
+    st.markdown("<div class='confidence-grid'><h4>Confidence by class</h4>", unsafe_allow_html=True)
+    for label, prob in scores.items():
+        width = int(min(max(prob, 0.0), 1.0) * 100)
+        st.markdown(
+            f"""
+            <div class="confidence-item">
+                <span>{label.title()}</span>
+                <div class="confidence-bar">
+                    <div class="confidence-bar__fill" style="width:{width}%;background:{ASPECT_COLORS.get(label, '#60A5FA')};"></div>
+                </div>
+                <small>{prob:.0%}</small>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def show_summary_cards(sentiment: Dict, aspects: List[Dict], deception: float) -> None:
     label, prob = sentiment_confidence(sentiment)
     dominant_aspect, aspect_share = summarize_aspects(aspects)
+    st.markdown("<div class='summary-cards'>", unsafe_allow_html=True)
     cols = st.columns(3)
-    cols[0].metric("Sentiment", label, f"Confidence {prob:.0%}")
-    cols[1].metric("Dominant Aspect Sentiment", dominant_aspect, f"{aspect_share:.0%} of detected")
-    cols[2].metric("Deception Score", f"{deception:.0%}")
+    metrics = [
+        ("Sentiment", label, f"Confidence {prob:.0%}"),
+        ("Dominant Aspect Sentiment", dominant_aspect, f"{aspect_share:.0%} of detected"),
+        ("Deception Score", f"{deception:.0%}", ""),
+    ]
+    for col, (title, value, delta) in zip(cols, metrics):
+        with col:
+            st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
+            st.metric(title, value, delta if delta else None)
+            st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_aspect_table(aspects: List[Dict]) -> None:
+def render_aspect_cards(aspects: List[Dict]) -> None:
     if not aspects:
         st.info("No aspect keywords detected. Add more detail to the review text.")
         return
-    df = pd.DataFrame(aspects)
-    def color_row(row):
-        color = ASPECT_COLORS.get(row.get("sentiment", "").lower(), "#607D8B")
-        return [f"background-color: {color}22"] * len(row)
-    st.dataframe(df.style.apply(color_row, axis=1))
+    columns = st.columns(2)
+    for idx, entry in enumerate(aspects):
+        aspect_name = entry.get("aspect", "").replace("_", " ").title()
+        sentiment = (entry.get("sentiment") or "neutral").lower()
+        evidence = entry.get("evidence", "—")
+        confidence = entry.get("confidence")
+        confidence_text = f"{confidence:.0%}" if isinstance(confidence, (int, float)) else "N/A"
+        chip_class = f"aspect-card__chip {sentiment}"
+        column = columns[idx % 2]
+        column.markdown(
+            f"""
+            <div class="aspect-card">
+                <h4>{aspect_name}</h4>
+                <div class="aspect-card__sentiment">
+                    <span class="{chip_class}">{sentiment.title()}</span>
+                    <span>{sentiment.title()}</span>
+                </div>
+                <div class="aspect-card__evidence">
+                    <strong>Evidence:</strong> {evidence}
+                </div>
+                <div class="aspect-card__confidence">
+                    Confidence: {confidence_text}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_about_sidebar() -> None:
@@ -206,6 +394,7 @@ def render_about_sidebar() -> None:
 
 def main() -> None:
     st.set_page_config(page_title="Taglish Review Analyzer", layout="wide")
+    inject_custom_css()
     st.title("Taglish Review Analyzer")
     st.caption("End-to-end sentiment, aspect, and deception insights for Taglish product feedback.")
 
@@ -302,7 +491,7 @@ def main() -> None:
     render_confidence_bars(sentiment.get("scores", {}))
 
     st.subheader("Aspect Insights")
-    render_aspect_table(aspects)
+    render_aspect_cards(aspects)
 
     st.subheader("Highlighted Review")
     highlighted = highlight_evidence(review_text, aspects)

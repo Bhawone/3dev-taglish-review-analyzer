@@ -16,6 +16,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from collections import Counter
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -327,8 +328,48 @@ class ReviewAnalyzer:
         text: str,
     ) -> tuple[str, Dict[str, float]]:
         adjusted_scores = dict(scores)
-        aspect_sentiments = {a.get("sentiment") for a in aspects if a.get("sentiment")}
-        if "positive" in aspect_sentiments and "negative" in aspect_sentiments:
+        aspect_sentiments = [
+            (a.get("sentiment") or "").lower()
+            for a in aspects
+            if a.get("sentiment") in {"positive", "neutral", "negative"}
+        ]
+        if aspect_sentiments:
+            sentiment_counter = Counter(aspect_sentiments)
+            pos_weight = sum(
+                (a.get("confidence") or 0.35)
+                for a in aspects
+                if (a.get("sentiment") or "").lower() == "positive"
+            )
+            neg_weight = sum(
+                (a.get("confidence") or 0.35)
+                for a in aspects
+                if (a.get("sentiment") or "").lower() == "negative"
+            )
+            has_pos = sentiment_counter.get("positive", 0) > 0
+            has_neg = sentiment_counter.get("negative", 0) > 0
+            dominant_sentiment, dominant_count = sentiment_counter.most_common(1)[0]
+            aspect_total = sum(sentiment_counter.values())
+            dominant_ratio = dominant_count / max(1, aspect_total)
+            opposes_overall = (
+                (initial_label == "positive" and dominant_sentiment == "negative")
+                or (initial_label == "negative" and dominant_sentiment == "positive")
+            )
+            weighted_opposition = (
+                (initial_label == "positive" and neg_weight > max(pos_weight, 0.4))
+                or (initial_label == "negative" and pos_weight > max(neg_weight, 0.4))
+            )
+            if has_pos and has_neg:
+                should_neutral = True
+            elif opposes_overall and dominant_ratio >= 0.5:
+                should_neutral = True
+            elif weighted_opposition:
+                should_neutral = True
+            else:
+                should_neutral = False
+        else:
+            should_neutral = False
+
+        if should_neutral:
             neutral_target = max(
                 adjusted_scores.get("neutral", 0.0),
                 min(

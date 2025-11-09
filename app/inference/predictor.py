@@ -24,7 +24,10 @@ try:
     import torch
 except ModuleNotFoundError:  # pragma: no cover - deployed environments without torch
     torch = None
-import joblib
+try:
+    import joblib
+except ModuleNotFoundError:  # pragma: no cover - deployed environments without joblib
+    joblib = None
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -139,19 +142,20 @@ class ReviewAnalyzer:
         self.transformer_model.eval()
 
     def _load_auxiliary_models(self) -> None:
-        if MODELS_DIR.exists():
-            aspect_path = MODELS_DIR / "aspect_sentiment_models.joblib"
-            if aspect_path.exists():
-                try:
-                    self.aspect_sentiment_models = joblib.load(aspect_path)
-                except Exception as exc:  # pragma: no cover
-                    print(f"Failed to load aspect sentiment models: {exc}")
-            deception_path = MODELS_DIR / "deception_classifier.joblib"
-            if deception_path.exists():
-                try:
-                    self.deception_model = joblib.load(deception_path)
-                except Exception as exc:  # pragma: no cover
-                    print(f"Failed to load deception classifier: {exc}")
+        if joblib is None or not MODELS_DIR.exists():
+            return
+        aspect_path = MODELS_DIR / "aspect_sentiment_models.joblib"
+        if aspect_path.exists():
+            try:
+                self.aspect_sentiment_models = joblib.load(aspect_path)
+            except Exception as exc:  # pragma: no cover
+                print(f"Failed to load aspect sentiment models: {exc}")
+        deception_path = MODELS_DIR / "deception_classifier.joblib"
+        if deception_path.exists():
+            try:
+                self.deception_model = joblib.load(deception_path)
+            except Exception as exc:  # pragma: no cover
+                print(f"Failed to load deception classifier: {exc}")
 
     def _train_baseline(self) -> None:
         if not FIRECS_PATH.exists():

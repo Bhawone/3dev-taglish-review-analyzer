@@ -90,14 +90,14 @@ CUSTOM_CSS = """
 .review-highlight {
     padding: 20px 22px;
     border-radius: 14px;
-    background: rgba(30, 41, 59, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.45);
-    line-height: 1.75;
-    font-size: 1.08rem;
-    color: #F9FAFB;
+    background: #f8fafc !important;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+    line-height: 1.7;
+    font-size: 1.06rem;
+    color: #0f172a !important;
     font-weight: 500;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.005em;
 }
 .review-highlight .aspect-highlight {
     padding: 0.05em 0.35em;
@@ -105,19 +105,19 @@ CUSTOM_CSS = """
     font-weight: 600;
     display: inline-block;
     margin: 0 1px;
-    color: #0f172a;
+    color: #111827 !important;
 }
 .review-highlight .aspect-highlight.positive {
-    background: rgba(52, 211, 153, 0.88);
-    border: 1px solid rgba(16, 185, 129, 0.9);
+    background: #fde047 !important;
+    border: 1px solid rgba(234, 179, 8, 0.7);
 }
 .review-highlight .aspect-highlight.negative {
-    background: rgba(248, 113, 113, 0.88);
-    border: 1px solid rgba(239, 68, 68, 0.9);
+    background: #facc15 !important;
+    border: 1px solid rgba(202, 138, 4, 0.7);
 }
 .review-highlight .aspect-highlight.neutral {
-    background: rgba(251, 191, 36, 0.88);
-    border: 1px solid rgba(217, 119, 6, 0.9);
+    background: #fde047 !important;
+    border: 1px solid rgba(217, 119, 6, 0.7);
 }
 .aspect-card {
     padding: 18px 20px;

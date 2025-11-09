@@ -1,0 +1,11 @@
+member,model,num_train_epochs,per_device_train_batch_size,learning_rate,weight_decay,warmup_steps,lr_scheduler_type,gradient_accumulation_steps,max_seq_length,seed,fp16,accuracy,f1_macro,notes
+baseline,tfidf-logreg,,,,,,,,,42,False,0.8024523160762943,0.8050088305616837,TF-IDF + LogReg baseline
+baseline-grid,tfidf-charwb_3_5,,,,,,,,,42,False,0.7874659400544959,0.7895965126409101,"GridSearchCV 5-fold; best_params={'clf__C': 1.0, 'clf__class_weight': None}"
+auto-grid,xlm-roberta-base,2.0,8,3e-05,0.05,,linear,1,128,42,False,0.8092643051771117,0.8085736685814453,0.7861035422343324,0.784688071837932,1.7128561933835347,auto-grid search (trials=8)
+auto-random,xlm-roberta-base,2.0,16,2.4785743214424334e-05,0.026911393162503516,,linear,1,128,42,False,0.8051771117166212,0.8042357078697897,0.782016348773842,0.7818323450971199,1.0590421676635742,auto-random search (trials=6)
+transformer,xlm-roberta-base,3,32,3e-05,0.01,,linear,1,256,42,True,0.7874659400544959,0.7902168405854463,early_stop=2; class_weights=False
+baseline,tfidf-logreg,,,,,,,,,42,False,0.8024523160762943,0.8050088305616837,TF-IDF + LogReg baseline
+baseline-grid,tfidf-word_1_2,,,,,,,,,42,False,0.9686648501362398,0.9689018288467438,"GridSearchCV 5-fold; best_params={'clf__C': 4.0, 'clf__class_weight': None}"
+auto-grid,xlm-roberta-base,2.0,8,3e-05,0.05,,linear,1,128,42,False,0.8092643051771117,0.8115632590363936,0.8174386920980926,0.8194252119671889,1.7447760184605916,auto-grid search (trials=8)
+auto-random,xlm-roberta-base,2.0,8,2.067723804269774e-05,0.09628678983126784,,linear,1,128,42,False,0.8024523160762943,0.8059912407156885,0.8024523160762943,0.8057446325536217,1.7436169862747193,auto-random search (trials=6)
+transformer,xlm-roberta-base,3,32,3e-05,0.01,,linear,1,256,42,True,0.8092643051771117,0.8120180430857343,early_stop=2; class_weights=False

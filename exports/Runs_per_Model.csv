@@ -1,0 +1,5 @@
+model,runs
+xlm-roberta-base,2
+tfidf-logreg,2
+tfidf-word_1_2,1
+tfidf-charwb_3_5,1

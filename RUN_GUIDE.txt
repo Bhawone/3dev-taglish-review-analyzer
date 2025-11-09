@@ -1,0 +1,5 @@
+﻿Backend:
+uvicorn app.backend.main:app --reload
+
+Frontend:
+streamlit run app/ui/app.py

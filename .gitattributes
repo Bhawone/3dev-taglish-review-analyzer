@@ -1,0 +1,2 @@
+checkpoints/xlmrb/best/model.safetensors filter=lfs diff=lfs merge=lfs -text
+checkpoints/xlmrb/best/pytorch_model_quantized.bin filter=lfs diff=lfs merge=lfs -text

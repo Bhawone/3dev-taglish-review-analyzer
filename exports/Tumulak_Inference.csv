@@ -1,0 +1,7 @@
+review,prediction,scores,notes
+"Delay na nga, hindi pa nagrereply si seller 😤📦 ang hassle","LABEL_0 (negative, 96.15%)",negative=0.9615; neutral=0.0353; positive=0.0032,Tumulak on-call inference verifying escalated complaint tagging on seller responsiveness.
+"Okay naman yung unit pero walang kasamang manual, sayang.","LABEL_1 (neutral, 63.37%)",negative=0.1985; neutral=0.6337; positive=0.1678,Documentation gap feedback appended to onboarding retro dataset.
+"Nagulat ako, mas maganda pa sa expected, sulit yung discount nila!","LABEL_2 (positive, 92.44%)",negative=0.0241; neutral=0.0515; positive=0.9244,High-sentiment response captured from flash sale evaluation run.
+"Parang reused yung box, may dents na agad nung dumating.","LABEL_0 (negative, 78.12%)",negative=0.7812; neutral=0.1569; positive=0.0619,Packaging quality regression flagged in fulfillment QA cycle.
+"Sakto lang sa expectations, wala namang issue after one week.","LABEL_1 (neutral, 71.05%)",negative=0.1213; neutral=0.7105; positive=0.1682,Steady-state usage sentiment tracked for post-release week 2.
+"Napaka-responsive ng live agent, naresolve agad yung payment error ko.","LABEL_2 (positive, 86.54%)",negative=0.0587; neutral=0.0760; positive=0.8654,Support channel win noted for KPI reconciliation with CSAT uplift.

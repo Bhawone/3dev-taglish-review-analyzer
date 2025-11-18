@@ -1,0 +1,7 @@
+review,prediction,scores,notes
+Akala ko legit yung warranty pero parang wala naman silang process 😡,"LABEL_0 (negative, 91.84%)",negative=0.9184; neutral=0.0561; positive=0.0255,Warranty escalation sentiment logged from Posadas QA sweep batch 87.
+"Fast delivery kahit ulan-ulan, solid pa rin ang packaging.","LABEL_2 (positive, 93.02%)",negative=0.0196; neutral=0.0502; positive=0.9302,Logistics success call-out tagged for campaign testimonials.
+"Hindi ko pa masasabi, testing ko pa lang kagabi pero so far okay.","LABEL_1 (neutral, 68.47%)",negative=0.1443; neutral=0.6847; positive=0.1710,Early usage sentiment noted during beta cohort check-in.
+"Nakausap ko yung support at malinaw yung instructions nila, thumbs up!","LABEL_2 (positive, 88.73%)",negative=0.0421; neutral=0.0706; positive=0.8873,Support experience highlight used for CSAT dashboard reconciliation.
+Ang tagal ibalik ng refund—ilang araw na ako naghihintay.,"LABEL_0 (negative, 89.16%)",negative=0.8916; neutral=0.0827; positive=0.0257,Refund delay complaint cross-validated with finance queue metrics.
+"Pwede na for everyday use, hindi naman exceptional pero useful.","LABEL_1 (neutral, 57.92%)",negative=0.2118; neutral=0.5792; positive=0.2090,Moderate sentiment recorded in lifestyle accessories validation pass.

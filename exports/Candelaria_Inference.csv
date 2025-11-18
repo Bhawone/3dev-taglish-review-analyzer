@@ -1,0 +1,7 @@
+review,prediction,scores,notes
+"Delay na nga, hindi pa nagrereply si seller 😤📦 ang hassle","LABEL_0 (negative, 96.15%)",negative=0.9615; neutral=0.0353; positive=0.0032,Escalated shipping complaint inferred via Candelaria smoke run; cross-check with seller-delay cluster.
+"So-so lang yung quality, di na ako ma-eexcite ulit bumili dito.","LABEL_1 (neutral, 52.41%)",negative=0.2667; neutral=0.5241; positive=0.2092,Validation pull from batch 1189; borderline neutral sentiment confirmed via manual audit.
+"Grabe ang generous ng freebies, sulit na sulit ang binayad ko!","LABEL_2 (positive, 94.06%)",negative=0.0128; neutral=0.0466; positive=0.9406,High-confidence positive sample contributing to uplift analysis for promo bundles.
+Medyo malabo yung instructions kaya napa-contact pa ako sa support.,"LABEL_1 (neutral, 61.33%)",negative=0.2411; neutral=0.6133; positive=0.1456,Documentation feedback flagged during post-release monitoring day 4.
+"Nakapila pa rin order ko kahit paid na kahapon, baka naman?","LABEL_0 (negative, 84.72%)",negative=0.8472; neutral=0.1264; positive=0.0264,Queued shipment frustration sample; aligns with SLA breach chatter spike.
+"Naayos din agad yung issue after mag-follow up, thank you sa mabilis na action!","LABEL_2 (positive, 87.95%)",negative=0.0471; neutral=0.0734; positive=0.8795,Resolution acknowledgement logged post-support escalation (ticket 45521).

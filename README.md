@@ -145,20 +145,6 @@ Elective 4_3DEFV/
 
 ---
 
-## Citation
-
-If you use this work, please cite:
-
-```
-[TO BE ADDED - IEEE citation format]
-```
-
----
-
-## License
-
-[TO BE ADDED]
-
 ---
 
 ## Contact

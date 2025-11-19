@@ -4,6 +4,8 @@
 
 ## Repository
 
+**Application URL:** https://3dev-taglish-review-analyzer-jwfbs8tzkbz7nsjatoavga.streamlit.app
+
 **Code Repository URL:** https://github.com/Bhawone/3dev-taglish-review-analyzer.git
 
 **GitHub:** https://github.com/Bhawone/3dev-taglish-review-analyzer

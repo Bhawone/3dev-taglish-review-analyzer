@@ -42,12 +42,28 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 
-CHECKPOINT_DIR = Path("checkpoints") / "xlmrb" / "best"
-MODELS_DIR = Path("models")
-FIRECS_PATH = Path("FiReCS.csv")
-TRAIN_IDS_PATH = Path("train_ids.csv")
-VAL_IDS_PATH = Path("val_ids.csv")
-TEST_IDS_PATH = Path("test_ids.csv")
+# Get project root (parent of app directory)
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CHECKPOINT_DIR = _PROJECT_ROOT / "checkpoints" / "xlmrb" / "best"
+MODELS_DIR = _PROJECT_ROOT / "models"
+
+# Try multiple locations for FiReCS.csv
+_firecs_candidates = [
+    _PROJECT_ROOT / "FiReCS.csv",
+    _PROJECT_ROOT / "Final_Project_Deliverables" / "FiReCS.csv",
+]
+FIRECS_PATH = None
+for candidate in _firecs_candidates:
+    if candidate.exists():
+        FIRECS_PATH = candidate
+        break
+if FIRECS_PATH is None:
+    # Use root as default (will raise error if not found when needed)
+    FIRECS_PATH = _PROJECT_ROOT / "FiReCS.csv"
+
+TRAIN_IDS_PATH = _PROJECT_ROOT / "train_ids.csv"
+VAL_IDS_PATH = _PROJECT_ROOT / "val_ids.csv"
+TEST_IDS_PATH = _PROJECT_ROOT / "test_ids.csv"
 
 LABEL_MAP = {0: "negative", 1: "neutral", 2: "positive"}
 SENTIMENT_LABELS = ["negative", "neutral", "positive"]
